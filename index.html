@@ -25,6 +25,8 @@
     --red: #E5484D;
     --red-soft: #FDE5E5;
     --radius: 18px;
+    --primary-shadow: rgba(242, 112, 58, .28);
+    --cele-bg: rgba(255, 224, 186, .96);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; }
@@ -42,11 +44,11 @@
   .topbar {
     position: sticky; top: 0; z-index: 20;
     padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
-    background: linear-gradient(135deg, #FF9A5C, #FF7E3D);
+    background: linear-gradient(135deg, var(--primary), var(--primary-deep));
     color: #fff;
     border-radius: 0 0 22px 22px;
     display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 4px 14px rgba(242, 112, 58, .25);
+    box-shadow: 0 4px 14px var(--primary-shadow);
   }
   .topbar-title { font-size: 19px; font-weight: 700; letter-spacing: .5px; }
   .topbar-sub { font-size: 11px; opacity: .92; text-align: right; line-height: 1.4; }
@@ -83,9 +85,9 @@
   .cal-week span.wk { color: var(--blue); }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
   .cal-cell {
-    position: relative; aspect-ratio: 1 / 1.12;
+    position: relative; aspect-ratio: 1 / 1.18;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 2px; border-radius: 10px; font-size: 13px;
+    gap: 1px; border-radius: 10px; font-size: 13px;
   }
   .cal-cell:active { background: var(--primary-soft); }
   .cal-cell.other { opacity: .22; }
@@ -100,8 +102,8 @@
   }
   .day-badge.xiu { color: var(--red); background: var(--red-soft); }
   .day-badge.ban { color: #8A7A6A; background: #F0E9E0; }
-  .day-icon-emoji { font-size: 17px; line-height: 1; }
-  img.day-icon { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; }
+  .day-icon-emoji { font-size: 20px; line-height: 1; }
+  img.day-icon { width: 25px; height: 25px; object-fit: contain; border-radius: 4px; }
   .rec-count { font-size: 9px; color: var(--text-light); line-height: 1; }
 
   /* ===== 汇总卡 ===== */
@@ -125,9 +127,9 @@
 
   .btn-primary {
     display: block; width: 100%; padding: 14px;
-    background: linear-gradient(135deg, #FF9A5C, #FF7E3D);
+    background: linear-gradient(135deg, var(--primary), var(--primary-deep));
     color: #fff; font-size: 16px; font-weight: 700;
-    border-radius: 999px; box-shadow: 0 4px 12px rgba(242,112,58,.3);
+    border-radius: 999px; box-shadow: 0 4px 12px var(--primary-shadow);
   }
   .btn-primary:active { transform: scale(.97); }
   .btn-ghost {
@@ -252,21 +254,21 @@
   #celebrate {
     position: fixed; inset: 0; z-index: 99; display: none;
     align-items: center; justify-content: center;
-    background: rgba(255, 224, 186, .96);
+    background: var(--cele-bg);
     overflow: hidden;
   }
   #celebrate.show { display: flex; }
   .cele-card {
-    position: relative; text-align: center; padding: 30px 34px;
-    background: #fff; border-radius: 26px; max-width: 82%;
-    box-shadow: 0 10px 40px rgba(242,112,58,.25);
+    position: relative; text-align: center; padding: 36px 34px;
+    background: #fff; border-radius: 28px; max-width: 92%;
+    box-shadow: 0 10px 44px var(--primary-shadow);
     animation: pop .5s cubic-bezier(.2, 1.5, .4, 1);
   }
   @keyframes pop { from { transform: scale(.3); opacity: 0; } }
-  .cele-card .big { font-size: 56px; line-height: 1.2; }
-  .cele-card .tag { font-size: 11px; color: var(--text-light); letter-spacing: 2px; margin-top: 6px; }
-  .cele-card .msg { font-size: 16px; font-weight: 700; margin-top: 10px; line-height: 1.6; }
-  .cele-card .sub { font-size: 12px; color: var(--text-light); margin-top: 8px; }
+  .cele-card .big { font-size: 66px; line-height: 1.2; }
+  .cele-card .tag { font-size: 12px; color: var(--text-light); letter-spacing: 2px; margin-top: 8px; }
+  .cele-card .msg { font-size: 18px; font-weight: 700; margin-top: 12px; line-height: 1.6; }
+  .cele-card .sub { font-size: 13px; color: var(--text-light); margin-top: 10px; }
   .cele-card .achv-name { color: var(--primary-deep); }
   .confetti { position: absolute; top: -6%; animation: confFall linear forwards; }
   @keyframes confFall { to { transform: translateY(110vh) rotate(340deg); opacity: .5; } }
@@ -279,6 +281,23 @@
     opacity: 0; pointer-events: none; transition: opacity .25s; max-width: 80%; text-align: center;
   }
   #toast.show { opacity: 1; }
+  #toast .t-act { margin-left: 10px; color: #FFC89E; font-weight: 700; text-decoration: underline; }
+
+  /* ===== 薪资构成 ===== */
+  .pay-lines { background: var(--primary-soft); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; }
+  .pay-line { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; color: #B4714A; }
+  .pay-line .k small { display: block; font-size: 10px; opacity: .85; font-weight: 400; }
+  .pay-line .v { font-weight: 700; color: var(--primary-deep); }
+  .pay-line.total { border-top: 1px dashed rgba(180, 113, 74, .35); margin-top: 4px; padding-top: 9px; font-size: 13px; font-weight: 700; }
+  .pay-line.total .v { font-size: 19px; }
+
+  /* ===== 主题选择 ===== */
+  .theme-grid { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; justify-content: center; }
+  .theme-chip { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .theme-dot { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; }
+  .theme-chip.sel .theme-dot { border-color: var(--text); }
+  .theme-chip .nm { font-size: 10px; color: var(--text-light); }
+  .theme-chip.sel .nm { color: var(--text); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -351,7 +370,7 @@ var BUILTIN_MSGS = [
 ];
 
 /* ================= 常量 ================= */
-var LS = { records: 'niuma_records_v1', settings: 'niuma_settings_v1', achv: 'niuma_achv_v1' };
+var LS = { records: 'niuma_records_v1', settings: 'niuma_settings_v1', achv: 'niuma_achv_v1', backup: 'niuma_clear_backup_v1' };
 var TYPE_INFO = {
   weekday:  { label: '工作日',     mult: 1.5, color: '#FF8A4C', bg: '#FFEDD9' },
   weekend:  { label: '休息日',     mult: 2,   color: '#5B9BD9', bg: '#E3F0FD' },
@@ -361,8 +380,32 @@ var WEEK_CN = ['日', '一', '二', '三', '四', '五', '六'];
 
 /* ================= 状态 ================= */
 var records = [];
-var settings = { hourlyRate: Number(CFG.defaultHourlyRate) > 0 ? Number(CFG.defaultHourlyRate) : 20 };
+var DEFAULT_SETTINGS = {
+  hourlyRate: Number(CFG.defaultHourlyRate) > 0 ? Number(CFG.defaultHourlyRate) : 20,
+  baseSalary: 0,        // 底薪（元/月），0 = 未设置
+  workStart: '09:00',   // 正常上班时间
+  workEnd: '18:00',
+  lunchMins: 60,        // 午休扣除（分钟）
+  theme: 'orange'       // 页面配色
+};
+var settings = Object.assign({}, DEFAULT_SETTINGS);
 var shownAchv = [];   // 已经展示过庆祝的成就 id
+
+/* 主题色方案 */
+var THEMES = {
+  orange: { name: '活力橘', dot: '#FF8A4C', vars: { '--bg': '#FFF6EA', '--primary': '#FF8A4C', '--primary-deep': '#F2703A', '--primary-soft': '#FFEDD9', '--primary-shadow': 'rgba(242,112,58,.28)', '--cele-bg': 'rgba(255,224,186,.96)' } },
+  pink:   { name: '樱花粉', dot: '#F272A8', vars: { '--bg': '#FFF1F6', '--primary': '#F272A8', '--primary-deep': '#DC5A92', '--primary-soft': '#FDE4EF', '--primary-shadow': 'rgba(220,90,146,.28)', '--cele-bg': 'rgba(255,226,238,.96)' } },
+  green:  { name: '薄荷绿', dot: '#33B58A', vars: { '--bg': '#F0FAF5', '--primary': '#33B58A', '--primary-deep': '#24996F', '--primary-soft': '#DDF4E9', '--primary-shadow': 'rgba(36,153,111,.26)', '--cele-bg': 'rgba(219,242,231,.96)' } },
+  blue:   { name: '海盐蓝', dot: '#4E9BE8', vars: { '--bg': '#EFF6FD', '--primary': '#4E9BE8', '--primary-deep': '#3580CF', '--primary-soft': '#DEEEFB', '--primary-shadow': 'rgba(53,128,207,.26)', '--cele-bg': 'rgba(219,236,251,.96)' } },
+  purple: { name: '葡萄紫', dot: '#9B7EDE', vars: { '--bg': '#F5F1FC', '--primary': '#9B7EDE', '--primary-deep': '#8463CC', '--primary-soft': '#EAE2F8', '--primary-shadow': 'rgba(132,99,204,.26)', '--cele-bg': 'rgba(235,228,250,.96)' } }
+};
+function applyTheme(key) {
+  var t = THEMES[key] || THEMES.orange;
+  var root = document.documentElement;
+  Object.keys(t.vars).forEach(function (k) { root.style.setProperty(k, t.vars[k]); });
+  var meta = document.querySelector('meta[name=theme-color]');
+  if (meta) meta.setAttribute('content', t.vars['--primary']);
+}
 var state = {
   tab: 'calendar',
   calMonth: '',
@@ -410,10 +453,41 @@ function calcHours(start, end) {
   return { hours: Math.floor(mins / 30) * 30 / 60, overnight: overnight, rawMins: mins };
 }
 
+/* ================= 薪资估算 ================= */
+function r2(n) { return Math.round(n * 100) / 100; }
+function minsOf(t) { var p = String(t || '').split(':'); return Number(p[0]) * 60 + Number(p[1]); }
+function minsToTime(m) { m = ((m % 1440) + 1440) % 1440; return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); }
+/* 每日正常计薪工时 = 下班-上班-午休 */
+function dailyPaidHours() {
+  var s = minsOf(settings.workStart), e = minsOf(settings.workEnd);
+  if (!(e > s)) return 0;
+  var mins = e - s - (Number(settings.lunchMins) || 0);
+  return Math.max(0, Math.round(mins / 30) * 30 / 60);
+}
+/* 当月应出勤天数（工作日 + 调休补班日） */
+function attendanceDays(ym) {
+  var p = ym.split('-');
+  var days = new Date(Number(p[0]), Number(p[1]), 0).getDate();
+  var n = 0;
+  for (var d = 1; d <= days; d++) {
+    if (detectDayType(ym + '-' + pad2(d)) === 'weekday') n++;
+  }
+  return n;
+}
+/* 日薪：设了底薪按 21.75 折算，否则按时薪 × 日工时 */
+function dailyBasePay() {
+  if (settings.baseSalary > 0) return settings.baseSalary / 21.75;
+  return dailyPaidHours() * settings.hourlyRate;
+}
+
 /* ================= 存取 ================= */
 function loadAll() {
   try { records = JSON.parse(localStorage.getItem(LS.records) || '[]'); } catch (e) { records = []; }
-  try { var s = JSON.parse(localStorage.getItem(LS.settings) || 'null'); if (s && s.hourlyRate > 0) settings = s; } catch (e) {}
+  try {
+    var s = JSON.parse(localStorage.getItem(LS.settings) || 'null');
+    if (s && typeof s === 'object') settings = Object.assign({}, DEFAULT_SETTINGS, s);
+  } catch (e) {}
+  if (!(settings.hourlyRate > 0)) settings.hourlyRate = DEFAULT_SETTINGS.hourlyRate;
   try { shownAchv = JSON.parse(localStorage.getItem(LS.achv) || '[]'); } catch (e) { shownAchv = []; }
   if (!Array.isArray(records)) records = [];
   if (!Array.isArray(shownAchv)) shownAchv = [];
@@ -611,6 +685,12 @@ function renderCalendarPage() {
   html += '</div></div>';
 
   /* 本月汇总卡 */
+  var att = attendanceDays(ym);
+  var dph = dailyPaidHours();
+  var normalPay = dailyBasePay() * att;
+  var payDesc = settings.baseSalary > 0
+    ? '应出勤 ' + att + ' 天 × ' + money(r2(dailyBasePay())) + '/天（底薪折算）'
+    : '应出勤 ' + att + ' 天 × ' + hoursLabel(dph) + 'h × ' + money(settings.hourlyRate) + '/时';
   html += '<div class="card">';
   if (s.count === 0) {
     html += '<div class="sum-big"><div class="hours" style="font-size:26px">🎉</div>' +
@@ -627,9 +707,12 @@ function renderCalendarPage() {
       }
     });
     html += '</div>';
-    html += '<div class="sum-pay"><div class="label">估算加班费（时薪 ' + money(settings.hourlyRate) + '/时）</div>' +
-      '<div class="val">' + money(Math.round(pay * 100) / 100) + '</div></div>';
   }
+  html += '<div class="pay-lines">' +
+    '<div class="pay-line"><span class="k">正常出勤<small>' + payDesc + '</small></span><span class="v">' + money(r2(normalPay)) + '</span></div>' +
+    '<div class="pay-line"><span class="k">加班费<small>' + s.count + ' 次共 ' + hoursLabel(s.totalHours) + ' 小时 · 时薪 ' + money(settings.hourlyRate) + '</small></span><span class="v">' + money(r2(pay)) + '</span></div>' +
+    '<div class="pay-line total"><span class="k">本月薪资估算</span><span class="v">' + money(r2(normalPay + pay)) + '</span></div>' +
+    '</div>';
   html += '<div class="fun-line">✨ ' + esc(funLine) + '</div>';
   html += '</div>';
 
@@ -673,8 +756,26 @@ function renderStatsPage() {
   /* 总览 */
   html += '<div class="card"><div class="sum-big">' +
     '<div><span class="hours">' + hoursLabel(s.totalHours) + '</span><span class="unit"> 小时</span></div>' +
-    '<div class="times">共 ' + s.count + ' 次加班 · 估算加班费 ' + money(Math.round(totalPay(rs) * 100) / 100) + '</div>' +
+    '<div class="times">共 ' + s.count + ' 次加班 · 估算加班费 ' + money(r2(totalPay(rs))) + '</div>' +
     '</div></div>';
+
+  /* 薪资构成 */
+  var att = attendanceDays(ym);
+  var dph = dailyPaidHours();
+  var normalPay = r2(dailyBasePay() * att);
+  var otPay = r2(totalPay(rs));
+  var payDesc = settings.baseSalary > 0
+    ? att + ' 天 × ' + money(r2(dailyBasePay())) + '/天（底薪折算）'
+    : att + ' 天 × ' + hoursLabel(dph) + 'h × ' + money(settings.hourlyRate) + '/时';
+  var payNote = settings.baseSalary > 0
+    ? '出勤日按工作日与调休补班估算；日薪 = 底薪 ÷ 21.75（法定月计薪天数）'
+    : '出勤日按工作日与调休补班估算；未设底薪，按时薪 × 每日工时计算';
+  html += '<div class="card"><div class="section-title">💰 本月薪资构成</div>' +
+    '<div class="stat-row"><span class="left">正常出勤薪资</span><span class="mid">' + payDesc + '</span><span class="pay">' + money(normalPay) + '</span></div>' +
+    '<div class="stat-row"><span class="left">加班费</span><span class="mid">' + s.count + ' 次 · ' + hoursLabel(s.totalHours) + ' 小时</span><span class="pay">' + money(otPay) + '</span></div>' +
+    '<div class="stat-total"><span class="t">本月薪资合计</span><span class="v">' + money(r2(normalPay + otPay)) + '</span></div>' +
+    '<div class="note">' + esc(payNote) + '</div>' +
+    '</div>';
 
   /* 分类明细 */
   html += '<div class="card"><div class="section-title">分类明细</div>';
@@ -758,22 +859,55 @@ function renderSettingsPage() {
   var el = document.getElementById('page-settings');
 
   var html = '';
-  /* 时薪 */
-  html += '<div class="card"><div class="section-title">💰 时薪设置</div>' +
+  /* 薪资设置 */
+  html += '<div class="card"><div class="section-title">💰 薪资设置</div>' +
     '<div class="set-row">' +
-    '<div><label>时薪（元/小时）</label><div class="hint">修改后所有加班费按新时薪重新计算</div></div>' +
+    '<div><label>底薪（元/月）</label><div class="hint">用于正常出勤薪资估算，可不填</div></div>' +
+    '<input type="number" id="baseInput" min="0" step="100" placeholder="选填" value="' + (settings.baseSalary > 0 ? settings.baseSalary : '') + '">' +
+    '</div>' +
+    '<div class="set-row"><div><label>正常上班时间</label><div class="hint">估算每日工时，也是打卡默认开始时间</div></div></div>' +
+    '<div class="time-row" style="margin-bottom:10px">' +
+    '<label>上班<input type="time" id="wsInput" value="' + settings.workStart + '"></label>' +
+    '<span class="arrow">➜</span>' +
+    '<label>下班<input type="time" id="weInput" value="' + settings.workEnd + '"></label>' +
+    '</div>' +
+    '<div class="set-row">' +
+    '<div><label>午休时长（分钟）</label><div class="hint">从每日工时中扣除</div></div>' +
+    '<input type="number" id="lunchInput" min="0" max="240" step="15" style="width:80px" value="' + settings.lunchMins + '">' +
+    '</div>' +
+    '<div class="set-row">' +
+    '<div><label>时薪（元/小时）</label><div class="hint" id="rateHint">加班费按此时薪计算</div></div>' +
     '<input type="number" id="rateInput" min="0" step="0.5" value="' + settings.hourlyRate + '">' +
     '</div>' +
-    '<div style="text-align:center;margin-top:10px"><button class="btn-sm" id="btnSaveRate">保存时薪</button></div>' +
-    '</div>';
+    '<div style="display:flex;gap:10px;justify-content:center;margin-top:12px">' +
+    '<button class="btn-sm" id="btnDerive">按底薪推算时薪</button>' +
+    '<button class="btn-sm" id="btnSavePay" style="background:var(--primary);color:#fff">保存</button>' +
+    '</div></div>';
+
+  /* 页面配色 */
+  html += '<div class="card"><div class="section-title">🎨 页面配色</div><div class="theme-grid" id="themeGrid">';
+  Object.keys(THEMES).forEach(function (k) {
+    html += '<button class="theme-chip' + (settings.theme === k ? ' sel' : '') + '" data-theme="' + k + '">' +
+      '<span class="theme-dot" style="background:' + THEMES[k].dot + '"></span>' +
+      '<span class="nm">' + THEMES[k].name + '</span></button>';
+  });
+  html += '</div><div class="hint" style="font-size:10px;color:var(--text-light);margin-top:10px;text-align:center">点击立即切换，自动保存</div></div>';
 
   /* 数据备份 */
   html += '<div class="card"><div class="section-title">📦 数据备份</div>' +
     '<div class="set-row"><div><label>导出数据</label><div class="hint">生成备份文件，换手机前先导出</div></div>' +
     '<button class="btn-sm" id="btnExport">导出</button></div>' +
     '<div class="set-row"><div><label>导入数据</label><div class="hint">用备份文件恢复，会覆盖当前记录</div></div>' +
-    '<button class="btn-sm" id="btnImport">导入</button></div>' +
-    '</div>';
+    '<button class="btn-sm" id="btnImport">导入</button></div>';
+  var backup = null;
+  try { backup = JSON.parse(localStorage.getItem(LS.backup) || 'null'); } catch (e) {}
+  if (backup && Array.isArray(backup.records)) {
+    html += '<div class="set-row"><div><label>撤销上次清空</label><div class="hint">' +
+      backup.records.length + ' 条记录 · ' + String(backup.clearedAt || '').replace('T', ' ').slice(0, 16) +
+      '</div></div>' +
+      '<button class="btn-sm" id="btnRestore" style="color:#3E9C63;background:#E6F5EC">恢复</button></div>';
+  }
+  html += '</div>';
 
   /* 添加到桌面 */
   html += '<div class="card"><div class="section-title">📱 添加到桌面（像App一样用）</div>' +
@@ -791,14 +925,53 @@ function renderSettingsPage() {
 
   el.innerHTML = html;
 
-  el.querySelector('#btnSaveRate').addEventListener('click', function () {
-    var v = Number(el.querySelector('#rateInput').value);
-    if (!(v > 0)) { toast('请输入大于 0 的时薪'); return; }
-    settings.hourlyRate = Math.round(v * 100) / 100;
+  function updateRateHint() {
+    var base = Number(el.querySelector('#baseInput').value);
+    var hint = el.querySelector('#rateHint');
+    hint.textContent = base > 0
+      ? '加班费按此时薪算；与底薪匹配约为 ' + money(r2(base / 174)) + '/时'
+      : '加班费按此时薪计算';
+  }
+  el.querySelector('#baseInput').addEventListener('input', updateRateHint);
+  updateRateHint();
+
+  el.querySelector('#btnDerive').addEventListener('click', function () {
+    var base = Number(el.querySelector('#baseInput').value);
+    if (!(base > 0)) { toast('请先填写底薪'); return; }
+    el.querySelector('#rateInput').value = r2(base / 174);
+    toast('已按 底薪 ÷ 21.75 天 ÷ 8 小时 推算');
+  });
+
+  el.querySelector('#btnSavePay').addEventListener('click', function () {
+    var base = Number(el.querySelector('#baseInput').value) || 0;
+    var rate = Number(el.querySelector('#rateInput').value);
+    var ws = el.querySelector('#wsInput').value;
+    var we = el.querySelector('#weInput').value;
+    var lunch = Number(el.querySelector('#lunchInput').value) || 0;
+    if (!(rate > 0)) { toast('时薪需大于 0'); return; }
+    if (!ws || !we || !(minsOf(we) > minsOf(ws))) { toast('下班时间需晚于上班时间'); return; }
+    if (lunch < 0 || lunch > 240) { toast('午休时长请在 0~240 分钟之间'); return; }
+    settings.baseSalary = r2(base);
+    settings.hourlyRate = r2(rate);
+    settings.workStart = ws;
+    settings.workEnd = we;
+    settings.lunchMins = lunch;
     saveSettings();
     renderAll();
-    toast('已保存，加班费按新时薪重新计算啦');
+    toast('薪资设置已保存');
   });
+
+  el.querySelectorAll('#themeGrid .theme-chip').forEach(function (b) {
+    b.addEventListener('click', function () {
+      settings.theme = b.getAttribute('data-theme');
+      saveSettings();
+      applyTheme(settings.theme);
+      renderSettingsPage();
+    });
+  });
+
+  var restoreBtn = el.querySelector('#btnRestore');
+  if (restoreBtn) restoreBtn.addEventListener('click', undoClear);
 
   el.querySelector('#btnExport').addEventListener('click', exportData);
   el.querySelector('#btnImport').addEventListener('click', function () {
@@ -863,8 +1036,8 @@ function renderDaySheet() {
   }
 
   /* 表单 */
-  var fStart = editing ? editing.start : '18:00';
-  var fEnd = editing ? editing.end : '20:00';
+  var fStart = editing ? editing.start : settings.workEnd;
+  var fEnd = editing ? editing.end : minsToTime(minsOf(settings.workEnd) + 120);
   var fType = editing ? editing.type : autoType;
 
   html += '<div class="divider"></div>';
@@ -1002,7 +1175,7 @@ function playNext() {
   var inner;
   if (item.kind === 'save') {
     inner = '<div class="cele-card" id="celeCard">' +
-      '<div class="big">' + (CFG.calendarIcon ? '<img src="' + esc(CFG.calendarIcon) + '" style="width:64px;height:64px;object-fit:contain" alt="">' : '🐮') + '</div>' +
+      '<div class="big">' + (CFG.calendarIcon ? '<img src="' + esc(CFG.calendarIcon) + '" style="width:110px;height:110px;object-fit:contain;border-radius:16px" alt="">' : '🐮') + '</div>' +
       '<div class="tag">打卡成功</div>' +
       '<div class="msg">' + esc(item.msg) + '</div>' +
       '<div class="sub">本次加班 ' + hoursLabel(item.hours) + ' 小时，已记录在案</div>' +
@@ -1076,14 +1249,32 @@ function importData(text) {
 }
 
 function clearAll() {
-  if (!confirm('确定要清空所有加班记录吗？此操作不可恢复！')) return;
+  if (!confirm('确定要清空所有加班记录吗？清空后 10 秒内可撤销！')) return;
   if (!confirm('再确认一次：真的要全部清空吗？建议先导出备份！')) return;
+  localStorage.setItem(LS.backup, JSON.stringify({
+    records: records, settings: settings, shownAchv: shownAchv, clearedAt: new Date().toISOString()
+  }));
   records = [];
   shownAchv = [];
   saveRecords();
   saveAchv();
   renderAll();
-  toast('已全部清空');
+  toast('已全部清空', { actionText: '撤销', onAction: undoClear });
+}
+function undoClear() {
+  var b = null;
+  try { b = JSON.parse(localStorage.getItem(LS.backup) || 'null'); } catch (e) {}
+  if (!b || !Array.isArray(b.records)) { toast('没有找到可恢复的数据'); return; }
+  records = b.records;
+  if (b.settings && typeof b.settings === 'object') settings = Object.assign({}, DEFAULT_SETTINGS, b.settings);
+  shownAchv = Array.isArray(b.shownAchv) ? b.shownAchv : [];
+  saveRecords();
+  saveSettings();
+  saveAchv();
+  localStorage.removeItem(LS.backup);
+  applyTheme(settings.theme);
+  renderAll();
+  toast('已撤销清空，恢复 ' + records.length + ' 条记录 🎉');
 }
 
 function syncAchvSilent() {
@@ -1094,12 +1285,23 @@ function syncAchvSilent() {
 
 /* ================= 轻提示 ================= */
 var toastTimer = null;
-function toast(msg) {
+function toast(msg, opts) {
+  opts = opts || {};
   var el = document.getElementById('toast');
-  el.textContent = msg;
+  if (opts.actionText) {
+    el.innerHTML = esc(msg) + '<button class="t-act" id="toastAct">' + esc(opts.actionText) + '</button>';
+    var act = document.getElementById('toastAct');
+    act.onclick = function () {
+      el.classList.remove('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      if (opts.onAction) opts.onAction();
+    };
+  } else {
+    el.textContent = msg;
+  }
   el.classList.add('show');
   if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  toastTimer = setTimeout(function () { el.classList.remove('show'); }, opts.actionText ? 10000 : 2200);
 }
 
 /* ================= 页面切换 ================= */
@@ -1124,6 +1326,7 @@ function renderAll() {
 /* ================= 初始化 ================= */
 function init() {
   loadAll();
+  applyTheme(settings.theme);
   var nowYm = todayStr().slice(0, 7);
   state.calMonth = nowYm;
   state.statsMonth = nowYm;
