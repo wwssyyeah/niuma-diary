@@ -350,24 +350,8 @@ var ADJ_WORKDAYS = {};                             // 调休上班日（1.5倍�
 var CUSTOM_MSGS = (CFG.customMessages || []).filter(function (s) {
   return typeof s === 'string' && s.trim();
 });
-
-/* 内置随机文案池（暖心 + 幽默混合） */
-var BUILTIN_MSGS = [
-  '辛苦啦，记得好好休息～',
-  '又是努力的一天，早点回家呀',
-  '你的每一份辛苦，都帮你记着呢',
-  '别太拼了，身体才是本钱',
-  '今天也辛苦了，摸摸头',
-  '好好吃饭，好好睡觉，明天继续发光',
-  '为公司发光发热 +1，电费记得找老板报销',
-  '牛马含金量还在上升📈',
-  '打工魂，熊熊燃烧🔥',
-  '又帮老板的车凑齐了一个轮毂',
-  '距离退休又近了一个加班日',
-  '今晚的月亮陪你加班，我陪你记账',
-  '加班费到账的那一刻，一切都值得',
-  '老板画饼，我记饼，张张不落'
-];
+/* 打卡语录只用自定义池；一条都没配时显示固定提示 */
+var FALLBACK_MSG = '今天辛苦啦，早点休息 🐮';
 
 /* ================= 常量 ================= */
 var LS = { records: 'niuma_records_v1', settings: 'niuma_settings_v1', achv: 'niuma_achv_v1', backup: 'niuma_clear_backup_v1' };
@@ -386,6 +370,7 @@ var DEFAULT_SETTINGS = {
   workStart: '09:00',   // 正常上班时间
   workEnd: '18:00',
   restSlots: [{ start: '12:00', end: '13:00' }],  // 休息时段（可多个：午休、晚饭等）
+  presets: [],          // 快捷打卡预设（最多3组：{start, end}，支持跨天）
   theme: 'orange'       // 页面配色
 };
 var settings = Object.assign({}, DEFAULT_SETTINGS);
@@ -556,6 +541,10 @@ function loadAll() {
   settings.restSlots = settings.restSlots.filter(function (r) {
     return r && minsOf(r.end) > minsOf(r.start);
   });
+  if (!Array.isArray(settings.presets)) settings.presets = [];
+  settings.presets = settings.presets.filter(function (p) {
+    return p && p.start && p.end && p.start !== p.end;
+  }).slice(0, 3);
   try { shownAchv = JSON.parse(localStorage.getItem(LS.achv) || '[]'); } catch (e) { shownAchv = []; }
   if (!Array.isArray(records)) records = [];
   if (!Array.isArray(shownAchv)) shownAchv = [];
@@ -968,6 +957,21 @@ function renderSettingsPage() {
     '<button class="btn-sm" id="btnSavePay" style="background:var(--primary);color:#fff">保存</button>' +
     '</div></div>';
 
+  /* 快捷打卡预设（最多3组） */
+  html += '<div class="card"><div class="section-title">⏱ 快捷打卡预设</div>' +
+    '<div class="hint" style="margin-bottom:10px">最多 3 组 · 打卡时一键填入 · 结束早于开始按跨天算 · 留空不启用</div>';
+  for (var pi = 0; pi < 3; pi++) {
+    var ps = settings.presets[pi] || { start: '', end: '' };
+    html += '<div class="time-row preset-edit" style="margin-bottom:8px">' +
+      '<label style="min-width:44px">预设' + (pi + 1) + '<input type="time" class="ppStart" value="' + ps.start + '"></label>' +
+      '<span class="arrow">➜</span>' +
+      '<label>结束<input type="time" class="ppEnd" value="' + ps.end + '"></label>' +
+      '</div>';
+  }
+  html += '<div style="text-align:center;margin-top:10px">' +
+    '<button class="btn-sm" id="btnSavePresets" style="background:var(--primary);color:#fff">保存预设</button>' +
+    '</div></div>';
+
   /* 页面配色 */
   html += '<div class="card"><div class="section-title">🎨 页面配色</div><div class="theme-grid" id="themeGrid">';
   Object.keys(THEMES).forEach(function (k) {
@@ -1087,6 +1091,20 @@ function renderSettingsPage() {
     toast('薪资设置已保存');
   });
 
+  el.querySelector('#btnSavePresets').addEventListener('click', function () {
+    var list = [];
+    el.querySelectorAll('.preset-edit').forEach(function (row) {
+      var a = row.querySelector('.ppStart').value;
+      var b = row.querySelector('.ppEnd').value;
+      if (!a && !b) return;                 // 整行留空 = 不启用
+      if (a && b && a !== b) list.push({ start: a, end: b });
+    });
+    settings.presets = list;
+    saveSettings();
+    renderAll();
+    toast(list.length ? '已保存 ' + list.length + ' 组预设' : '预设已清空');
+  });
+
   el.querySelectorAll('#themeGrid .theme-chip').forEach(function (b) {
     b.addEventListener('click', function () {
       settings.theme = b.getAttribute('data-theme');
@@ -1172,6 +1190,15 @@ function renderDaySheet() {
     html += '<div class="day-note" style="margin-bottom:8px">正在编辑 ' + editing.start + '–' + editing.end +
       ' 这条记录 <button style="color:var(--primary-deep);font-size:11px;text-decoration:underline" id="btnCancelEdit">取消编辑</button></div>';
   }
+  if (settings.presets.length) {
+    html += '<div id="fPreset" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">' +
+      settings.presets.map(function (p, i) {
+        var cross = minsOf(p.end) <= minsOf(p.start);
+        return '<button class="btn-sm preset-chip" data-pi="' + i + '" style="padding:6px 12px;background:var(--primary-soft);color:var(--primary-deep)">' +
+          p.start + '~' + p.end + (cross ? '（次日）' : '') + '</button>';
+      }).join('') +
+      '</div>';
+  }
   html += '<div class="time-row">' +
     '<label>开始时间<input type="time" id="fStart" value="' + fStart + '"></label>' +
     '<span class="arrow">➜</span>' +
@@ -1207,6 +1234,18 @@ function renderDaySheet() {
   }
   sheet.querySelector('#fStart').addEventListener('input', updateDur);
   sheet.querySelector('#fEnd').addEventListener('input', updateDur);
+  sheet.querySelectorAll('#fPreset .preset-chip').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = settings.presets[Number(b.getAttribute('data-pi'))];
+      if (!p) return;
+      sheet.querySelector('#fStart').value = p.start;
+      sheet.querySelector('#fEnd').value = p.end;
+      sheet.querySelectorAll('#fPreset .preset-chip').forEach(function (x) { x.style.background = 'var(--primary-soft)'; x.style.color = 'var(--primary-deep)'; });
+      b.style.background = 'var(--primary)';
+      b.style.color = '#fff';
+      updateDur();
+    });
+  });
   sheet.querySelectorAll('#fType button').forEach(function (b) {
     b.addEventListener('click', function () {
       curType = b.getAttribute('data-type');
@@ -1284,11 +1323,10 @@ function renderDaySheet() {
 
 /* ================= 随机文案 ================= */
 function pickMessage() {
-  var r = Math.random();
-  if (CUSTOM_MSGS.length && r < 0.5) {
+  if (CUSTOM_MSGS.length) {
     return CUSTOM_MSGS[Math.floor(Math.random() * CUSTOM_MSGS.length)];
   }
-  return BUILTIN_MSGS[Math.floor(Math.random() * BUILTIN_MSGS.length)];
+  return FALLBACK_MSG;
 }
 
 /* ================= 庆祝弹层（队列依次播放） ================= */
