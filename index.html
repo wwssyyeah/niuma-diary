@@ -343,9 +343,9 @@
 /* ================= 配置读取 ================= */
 var CFG = window.NIUMA_CONFIG || {};
 var APP_NAME = CFG.appName || '牛马日记';
-var HOLIDAYS = CFG.holidays || {};                 // 法定节假日（3倍）
-var REST_DAYS = CFG.restDays || {};                // 调休休息日（2倍）
-var ADJ_WORKDAYS = {};                             // 调休上班日（1.5倍）
+var HOLIDAYS = CFG.holidays || {};                 // 法定节假日
+var REST_DAYS = CFG.restDays || {};                // 调休休息日
+var ADJ_WORKDAYS = {};                             // 调休上班日（按工作日）
 (CFG.adjustedWorkdays || []).forEach(function (d) { ADJ_WORKDAYS[d] = true; });
 var CUSTOM_MSGS = (CFG.customMessages || []).filter(function (s) {
   return typeof s === 'string' && s.trim();
@@ -357,8 +357,8 @@ var FALLBACK_MSG = '今天辛苦啦，早点休息 🐮';
 var LS = { records: 'niuma_records_v1', settings: 'niuma_settings_v1', achv: 'niuma_achv_v1', backup: 'niuma_clear_backup_v1' };
 var TYPE_INFO = {
   weekday:  { label: '工作日',     mult: 1.5, color: '#FF8A4C', bg: '#FFEDD9' },
-  weekend:  { label: '休息日',     mult: 2,   color: '#5B9BD9', bg: '#E3F0FD' },
-  holiday:  { label: '法定节假日', mult: 3,   color: '#E5484D', bg: '#FDE5E5' }
+  weekend:  { label: '休息日',     mult: 1,   color: '#5B9BD9', bg: '#E3F0FD' },
+  holiday:  { label: '法定节假日', mult: 1,   color: '#E5484D', bg: '#FDE5E5' }
 };
 var WEEK_CN = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -632,7 +632,7 @@ var ACHIEVEMENTS = [
   { id: 'rest10',  emoji: '🎪', name: '周末常驻嘉宾', desc: '休息日加班 10 次',
     test: function (s) { return s.restCount >= 10; },
     prog: function (s) { return { cur: Math.min(s.restCount, 10), max: 10, unit: '次' }; } },
-  { id: 'hol1',    emoji: '🏔️', name: '假日坚守',     desc: '法定节假日加班（3 倍工资记得要）',
+  { id: 'hol1',    emoji: '🏔️', name: '假日坚守',     desc: '法定节假日加班（节假日时薪记得要）',
     test: function (s) { return s.holidayCount >= 1; },
     prog: function (s) { return { cur: Math.min(s.holidayCount, 1), max: 1, unit: '次' }; } },
   { id: 'streak3', emoji: '🚀', name: '三连击',       desc: '连续 3 天加班',
@@ -835,7 +835,7 @@ function renderStatsPage() {
     ? '固定底薪 · 正常工时 ' + settings.workStart + '~' + settings.workEnd
     : att + ' 天 × ' + hoursLabel(dph) + 'h × ' + money(settings.rateWeekday) + '/时';
   var payNote = baseSet
-    ? '底薪为每月固定保底工资；工作日仅 ' + settings.workEnd + ' 之后（或 ' + settings.workStart + ' 之前）的加班计 1.5 倍，休息日 2 倍，法定节假日 3 倍；记录覆盖到的休息时段自动扣除'
+    ? '底薪为每月固定保底工资；工作日仅 ' + settings.workEnd + ' 之后（或 ' + settings.workStart + ' 之前）的加班计 1.5 倍，休息日/法定节假日按时薪 × 实际时长计算；记录覆盖到的休息时段自动扣除'
     : '未设底薪：出勤薪资按时薪 × 每日工时 × 应出勤天数估算；实际发放以公司规定为准';
   html += '<div class="card"><div class="section-title">💰 本月薪资构成</div>' +
     '<div class="stat-row"><span class="left">' + (baseSet ? '底薪' : '正常出勤薪资') + '</span><span class="mid">' + payDesc + '</span><span class="pay">' + money(normalPay) + '</span></div>' +
@@ -853,12 +853,12 @@ function renderStatsPage() {
     totalPaySum += p;
     html += '<div class="stat-row">' +
       '<span class="left"><span class="dot" style="background:' + TYPE_INFO[k].color + '"></span>' + TYPE_INFO[k].label + '</span>' +
-      '<span class="mid">' + hoursLabel(h) + 'h × ' + TYPE_INFO[k].mult + ' 倍 × ' + money(otRateFor(k)) + '/时</span>' +
+      '<span class="mid">' + hoursLabel(h) + 'h × ' + (TYPE_INFO[k].mult === 1 ? '' : TYPE_INFO[k].mult + ' 倍 × ') + money(otRateFor(k)) + '/时</span>' +
       '<span class="pay">' + money(Math.round(p * 100) / 100) + '</span></div>';
   });
   html += '<div class="stat-total"><span class="t">加班费合计</span><span class="v">' +
     money(Math.round(totalPaySum * 100) / 100) + '</span></div>';
-  html += '<div class="note">按自定义时薪估算：工作日 1.5 倍 × ' + money(settings.rateWeekday) + '/时 · 休息日 2 倍 × ' + money(settings.rateWeekend) + '/时 · 法定节假日 3 倍 × ' + money(settings.rateHoliday) + '/时<br>依据《劳动法》第四十四条，实际发放以公司规定为准</div>';
+  html += '<div class="note">按自定义时薪估算：工作日 1.5 倍 × ' + money(settings.rateWeekday) + '/时 · 休息日 ' + money(settings.rateWeekend) + '/时 × 实际时长 · 法定节假日 ' + money(settings.rateHoliday) + '/时 × 实际时长<br>实际发放以公司规定为准</div>';
   html += '</div>';
 
   /* 当月记录列表 */
@@ -954,9 +954,9 @@ function renderSettingsPage() {
     '<div style="text-align:center;margin:2px 0 10px"><button class="btn-sm" id="btnAddRest">＋ 添加休息时段</button></div>' +
     '<div class="set-row"><div><label>工作日加班时薪（元/小时）</label><div class="hint">工作日加班 = 时薪 × 1.5 倍</div></div>' +
     '<input type="number" id="rateWdInput" min="0" step="0.5" value="' + settings.rateWeekday + '"></div>' +
-    '<div class="set-row"><div><label>休息日加班时薪（元/小时）</label><div class="hint">周末加班 = 时薪 × 2 倍</div></div>' +
+    '<div class="set-row"><div><label>休息日加班时薪（元/小时）</label><div class="hint">周末加班 = 时薪 × 实际时长</div></div>' +
     '<input type="number" id="rateWeInput" min="0" step="0.5" value="' + settings.rateWeekend + '"></div>' +
-    '<div class="set-row"><div><label>法定节假日时薪（元/小时）</label><div class="hint">节假日加班 = 时薪 × 3 倍</div></div>' +
+    '<div class="set-row"><div><label>法定节假日时薪（元/小时）</label><div class="hint">节假日加班 = 时薪 × 实际时长</div></div>' +
     '<input type="number" id="rateHoInput" min="0" step="0.5" value="' + settings.rateHoliday + '"></div>' +
     '<div style="text-align:center;margin-top:12px">' +
     '<button class="btn-sm" id="btnSavePay" style="background:var(--primary);color:#fff">保存</button>' +
@@ -1010,7 +1010,7 @@ function renderSettingsPage() {
   /* 关于 */
   html += '<div class="card"><div class="section-title">🐮 关于牛马日记</div>' +
     '<div class="note" style="text-align:left">版本 1.0 · 记录每一份辛苦<br>' +
-    '加班倍率：工作日 1.5 倍 / 休息日 2 倍 / 法定节假日 3 倍（依据《劳动法》第四十四条）<br>' +
+    '计薪规则：工作日超出正常工时部分 × 1.5 倍时薪 / 休息日、法定节假日按时薪 × 实际时长<br>' +
     '节假日数据：国务院办公厅 2026 年放假安排（国办发明电〔2025〕7号）<br>' +
     '数据仅保存在本机浏览器，记得定期导出备份</div>' +
     '<div style="text-align:center;margin-top:8px"><button class="btn-danger" id="btnClear">清空所有数据</button></div>' +
@@ -1144,8 +1144,8 @@ function renderDaySheet() {
     TYPE_INFO[autoType].label + '</span></h3>';
 
   var note = [];
-  if (legalName) note.push('🏮 ' + legalName + '（法定节假日，加班 3 倍）');
-  else if (restName) note.push('🏮 ' + restName + '（休息日，加班 2 倍）');
+  if (legalName) note.push('🏮 ' + legalName + '（法定节假日，按时薪 × 实际时长）');
+  else if (restName) note.push('🏮 ' + restName + '（休息日，按时薪 × 实际时长）');
   else if (adjWork) note.push('💼 调休补班日（按工作日 1.5 倍）');
   if (dateStr === todayStr()) note.push('今天');
   if (note.length) html += '<div class="day-note">' + esc(note.join(' · ')) + '</div>';
@@ -1211,11 +1211,12 @@ function renderDaySheet() {
     var oh = otHoursOf(st, en, curType);
     var rate = otRateFor(curType);
     var pay = TYPE_INFO[curType].mult * oh * rate;
+    var multLabel = TYPE_INFO[curType].mult === 1 ? '时薪 × 实际时长' : TYPE_INFO[curType].mult + ' 倍 · 时薪 ' + money(rate);
     var txt = '时长：<b>' + hoursLabel(c.hours) + '</b> 小时' + (c.overnight ? '（跨天）' : '');
     if (oh < c.hours) {
       txt += '<br><span style="font-size:11px;color:var(--primary-deep)">有效加班 <b>' + hoursLabel(oh) + '</b> 小时（已扣除正常工时/休息时段）</span>';
     }
-    txt += '<br><span style="font-size:11px">' + TYPE_INFO[curType].label + ' ' + TYPE_INFO[curType].mult + ' 倍 · 时薪 ' + money(rate) + ' · 估算加班费 ' + money(r2(pay)) + '</span>';
+    txt += '<br><span style="font-size:11px">' + TYPE_INFO[curType].label + ' ' + multLabel + ' · 估算加班费 ' + money(r2(pay)) + '</span>';
     el2.innerHTML = txt;
   }
   sheet.querySelector('#fStart').addEventListener('input', updateDur);
